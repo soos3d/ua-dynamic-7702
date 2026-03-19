@@ -10,16 +10,10 @@
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "^4.67.2",
-    "@dynamic-labs/ethereum-core": "^4.67.2",
     "@dynamic-labs/sdk-react-core": "^4.67.2",
-    "@dynamic-labs/waas-evm": "^4.67.2",
-    "@dynamic-labs/wallet-connector-core": "^4.67.2",
-    "@particle-network/universal-account-sdk": "^1.0.27",
-    "ethers": "^6.16.0",
     "next": "15.5.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "react-toastify": "^11.0.5"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -4,15 +4,19 @@ declare module "@particle-network/universal-account-sdk" {
       projectId: string
       projectClientKey: string
       projectAppUuid: string
-      smartAccountOptions: {
-        useEIP7702: boolean
+      ownerAddress?: string
+      smartAccountOptions?: {
+        useEIP7702?: boolean
         name: string
         version: string
         ownerAddress: string
+        smartAccountAddress?: string
+        solanaSmartAccountAddress?: string
       }
       tradeConfig?: {
         slippageBps?: number
         universalGas?: boolean
+        usePrimaryTokens?: string[]
       }
     })
     getSmartAccountOptions(): Promise<{
@@ -35,6 +39,8 @@ declare module "@particle-network/universal-account-sdk" {
       signature: string,
       authorizations?: Array<{ userOpHash: string; signature: string }>,
     ): Promise<{ transactionId: string }>
+    getTransaction(transactionId: string): Promise<any>
+    getTransactions(page?: number, limit?: number): Promise<any>
   }
 
   export const UNIVERSAL_ACCOUNT_VERSION: string
@@ -56,7 +62,7 @@ declare module "@particle-network/universal-account-sdk" {
   export const CHAIN_ID: {
     SOLANA_MAINNET: number
     ETHEREUM_MAINNET: number
-    ARBITRUM_ONE: number
+    ARBITRUM_MAINNET_ONE: number
     [key: string]: number
   }
 

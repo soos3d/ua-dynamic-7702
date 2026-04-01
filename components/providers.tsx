@@ -29,6 +29,8 @@ export function Providers({
       settings={{
         environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID!,
         walletConnectors: [EthereumWalletConnectors],
+        walletsFilter: (wallets) =>
+          wallets.filter((w) => w.key === "dynamicEmail"),
         overrides: { evmNetworks: ensureArbitrum },
       }}
     >

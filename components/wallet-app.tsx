@@ -64,11 +64,11 @@ function UserInfoCard() {
           </span>
           {address && <CopyButton text={address} />}
         </div>
-        <p className="mb-3 break-all font-mono text-sm text-zinc-800 dark:text-zinc-200">
+        <p className="mb-2 break-all font-mono text-sm text-zinc-800 dark:text-zinc-200">
           {address || "Fetching address..."}
         </p>
 
-        <div className="mb-1 border-t border-zinc-100 pt-3 dark:border-zinc-800">
+        <div className="mb-1 border-t border-zinc-100 pt-2 dark:border-zinc-800">
           <span className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
             Solana Address
           </span>
@@ -76,11 +76,11 @@ function UserInfoCard() {
             Deposit SOL/USDC here -- counts toward your unified balance.
           </p>
         </div>
-        <p className="mb-3 break-all font-mono text-sm text-zinc-800 dark:text-zinc-200">
+        <p className="mb-2 break-all font-mono text-sm text-zinc-800 dark:text-zinc-200">
           {accountInfo.solanaSmartAccount || "Fetching address..."}
         </p>
 
-        <div className="mb-1 flex items-center justify-between border-t border-zinc-100 pt-3 dark:border-zinc-800">
+        <div className="mb-1 flex items-center justify-between border-t border-zinc-100 pt-2 dark:border-zinc-800">
           <span className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
             Unified Balance
           </span>
@@ -139,20 +139,11 @@ function DelegationCard() {
   }, [universalAccount, ensureDelegated])
 
   const handleUndelegate = useCallback(async () => {
-    // #region agent log
-    fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'wallet-app.tsx:handleUndelegate',message:'handleUndelegate called',data:{undelegating},timestamp:Date.now(),runId:'run1',hypothesisId:'H-D'})}).catch(()=>{});
-    // #endregion
     setUndelegating(true)
     try {
       await undelegateEOA()
-      // #region agent log
-      fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'wallet-app.tsx:handleUndelegate:success',message:'undelegateEOA succeeded',data:{},timestamp:Date.now(),runId:'run2',hypothesisId:'H-all'})}).catch(()=>{});
-      // #endregion
       toast.success("Undelegation on Arbitrum succeeded!")
     } catch (err: unknown) {
-      // #region agent log
-      fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'wallet-app.tsx:handleUndelegate:error',message:'undelegateEOA failed',data:{error:err instanceof Error ? err.message : String(err)},timestamp:Date.now(),runId:'run2',hypothesisId:'H-A'})}).catch(()=>{});
-      // #endregion
       console.error("Undelegation failed:", err)
       toast.error("Undelegation failed: " + (err instanceof Error ? err.message : String(err)))
     } finally {
@@ -239,7 +230,7 @@ function ConvertCard() {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="USDC amount"
-        className="mb-3 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
+        className="mb-2 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:focus:border-zinc-500"
       />
       <button
         onClick={handleConvert}
@@ -293,11 +284,11 @@ function Step({
           <div className="mt-2 w-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
         )}
       </div>
-      <div className="flex-1 pb-8">
+      <div className="flex-1 pb-5">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
           {title}
         </h3>
-        <p className="mb-3 mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mb-2 mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
           {description}
         </p>
         {children}
@@ -307,23 +298,10 @@ function Step({
 }
 
 function Dashboard() {
-  const { handleLogOut } = useDynamicContext()
   const { loading } = useUniversalAccount()
 
   return (
     <div className="space-y-2">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          Universal Account
-        </h2>
-        <button
-          onClick={() => handleLogOut()}
-          className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
-        >
-          Sign Out
-        </button>
-      </div>
-
       {loading && <Spinner />}
 
       <Step
@@ -356,10 +334,7 @@ function Dashboard() {
 
 function LoginView() {
   return (
-    <div className="space-y-4">
-      <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-        Sign In
-      </h1>
+    <div className="space-y-3">
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
         Connect with an embedded wallet to get started.
       </p>
@@ -383,9 +358,47 @@ function AppContent() {
   return <LoginView />
 }
 
+function AppHeader() {
+  const isLoggedIn = useIsLoggedIn()
+  const { handleLogOut } = useDynamicContext()
+
+  return (
+    <div className="mb-4 flex items-center justify-between border-b border-zinc-100 pb-3 dark:border-zinc-800">
+      <div className="flex items-center gap-2">
+        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-zinc-900 dark:bg-zinc-100">
+          <svg
+            className="h-3.5 w-3.5 text-white dark:text-zinc-900"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" />
+          </svg>
+        </div>
+        <h1 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          Dynamic Embedded Wallet + Universal Accounts
+        </h1>
+      </div>
+      {isLoggedIn && (
+        <button
+          onClick={() => handleLogOut()}
+          className="rounded-lg px-3 py-1 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-800 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
+        >
+          Sign Out
+        </button>
+      )}
+    </div>
+  )
+}
+
 export function WalletApp() {
   return (
-    <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="w-full max-w-lg rounded-xl border border-zinc-200 bg-white px-5 pb-5 pt-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <AppHeader />
       <AppContent />
       <ToastContainer
         position="bottom-right"

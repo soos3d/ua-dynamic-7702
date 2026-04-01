@@ -127,10 +127,9 @@ export function UniversalAccountProvider({
         })
 
         await refreshDelegationStatus()
-        const deployments = await universalAccount.getEIP7702Deployments();
-        console.log(deployments);
         const assets = await universalAccount.getPrimaryAssets()
         setPrimaryAssets(assets)
+
       } catch (err) {
         console.error("Failed to fetch UA data:", err)
       } finally {
@@ -146,6 +145,8 @@ export function UniversalAccountProvider({
     try {
       const assets = await universalAccount.getPrimaryAssets()
       setPrimaryAssets(assets)
+      const deployments = await universalAccount.getEIP7702Deployments()
+      console.log("deployments", deployments)
     } catch (err) {
       console.error("Failed to refresh balance:", err)
     }
@@ -190,8 +191,8 @@ export function UniversalAccountProvider({
   )
 
   // Pre-delegate the EOA on Arbitrum via a Type-4 transaction.
-  // We pre-delegate with chain-specific auth before creating UA transactions
-  // because chainId 0 (chain-agnostic) may not be supported.
+  // We use chain-specific auth (ARBITRUM_CHAIN_ID) and Particle's recommended
+  // nonce (auth.nonce + 1) rather than the on-chain transaction count.
   const ensureDelegated = useCallback(async () => {
     if (!universalAccount || !primaryWallet || !userAddress) {
       throw new Error("Universal Account or wallet not ready")
@@ -241,10 +242,6 @@ export function UniversalAccountProvider({
       throw new Error("Primary wallet is not an Ethereum wallet")
     }
 
-    // #region agent log
-    fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'universal-account-provider.tsx:undelegateEOA:entry',message:'undelegateEOA called',data:{userAddress},timestamp:Date.now(),runId:'run1',hypothesisId:'H-D'})}).catch(()=>{});
-    // #endregion
-
     await primaryWallet.switchNetwork(ARBITRUM_CHAIN_ID)
 
     const publicClient = await primaryWallet.getPublicClient()
@@ -252,19 +249,11 @@ export function UniversalAccountProvider({
       address: userAddress as `0x${string}`,
     })
 
-    // #region agent log
-    fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'universal-account-provider.tsx:undelegateEOA:nonce',message:'nonce fetched, about to signEip7702Auth',data:{nonce:Number(nonce),nonceUsed:Number(nonce)+1,nonceType:typeof nonce},timestamp:Date.now(),runId:'run1',hypothesisId:'H-A'})}).catch(()=>{});
-    // #endregion
-
     const authorization = await signEip7702Auth(
       "0x0000000000000000000000000000000000000000",
       ARBITRUM_CHAIN_ID,
       nonce + 1,
     )
-
-    // #region agent log
-    fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'universal-account-provider.tsx:undelegateEOA:postSign',message:'signEip7702Auth returned, about to sendTransaction',data:{hasAuthorization:!!authorization},timestamp:Date.now(),runId:'run1',hypothesisId:'H-B'})}).catch(()=>{});
-    // #endregion
 
     const walletClient = await primaryWallet.getWalletClient()
     await walletClient.sendTransaction({
@@ -275,15 +264,7 @@ export function UniversalAccountProvider({
       nonce,
     })
 
-    // #region agent log
-    fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'universal-account-provider.tsx:undelegateEOA:postTx',message:'sendTransaction completed, refreshing status',data:{},timestamp:Date.now(),runId:'run1',hypothesisId:'H-C'})}).catch(()=>{});
-    // #endregion
-
     await refreshDelegationStatus()
-
-    // #region agent log
-    fetch('http://127.0.0.1:7502/ingest/56c19002-8838-4759-8a8d-585337b5d366',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'4ab4d6'},body:JSON.stringify({sessionId:'4ab4d6',location:'universal-account-provider.tsx:undelegateEOA:done',message:'undelegateEOA completed',data:{},timestamp:Date.now(),runId:'run1',hypothesisId:'H-E'})}).catch(()=>{});
-    // #endregion
   }, [primaryWallet, userAddress, signEip7702Auth, refreshDelegationStatus])
 
   const signAndSend = useCallback(
